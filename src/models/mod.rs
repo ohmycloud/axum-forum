@@ -4,3 +4,4 @@ mod user;
 
 pub use form::*;
 pub use template::*;
+pub use user::*;

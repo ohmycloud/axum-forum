@@ -1,6 +1,7 @@
 use askama::Template;
 use axum::{
     Form, Router, debug_handler,
+    extract::State,
     response::{Html, IntoResponse, Redirect},
     routing::{get, post},
 };
@@ -10,7 +11,7 @@ use validator::Validate;
 
 use crate::{
     AppState,
-    models::{LoginForm, LoginTemplate, RegisterForm, RegisterTemplate},
+    models::{LoginForm, LoginTemplate, RegisterForm, RegisterTemplate, User},
     utils::validation_errors,
 };
 
@@ -42,7 +43,11 @@ pub async fn login_handler(messages: Messages) -> impl IntoResponse {
     Html(tmpl.render().unwrap())
 }
 
-pub async fn register_form(messages: Messages, Form(form): Form<RegisterForm>) -> Redirect {
+pub async fn register_form(
+    messages: Messages,
+    State(state): State<AppState>,
+    Form(form): Form<RegisterForm>,
+) -> Redirect {
     // Validate the upcoming data
     if let Err(errors) = form.validate() {
         let error_messages = validation_errors(errors);
@@ -54,11 +59,26 @@ pub async fn register_form(messages: Messages, Form(form): Form<RegisterForm>) -
 
         Redirect::to("/register")
     } else {
+        // Register new user and save the user into the database.
+        let exists = User::email_exists(&state.pool, &form.email).await;
+        if let Err(_) = exists {
+            messages.error("Something went wrong.");
+            return Redirect::to("/register");
+        } else if exists.is_ok() {
+            messages.error("User already exists.");
+            return Redirect::to("/register");
+        }
+
+        User::register(&state.pool, form).await.unwrap();
         Redirect::to("/")
     }
 }
 
-pub async fn login_form(messages: Messages, Form(form): Form<LoginForm>) -> Redirect {
+pub async fn login_form(
+    messages: Messages,
+    State(state): State<AppState>,
+    Form(form): Form<LoginForm>,
+) -> Redirect {
     // Validate the upcoming data
     if let Err(errors) = form.validate() {
         let error_messages = validation_errors(errors);
@@ -70,6 +90,7 @@ pub async fn login_form(messages: Messages, Form(form): Form<LoginForm>) -> Redi
 
         Redirect::to("/login")
     } else {
+        User::login(&state.pool, form).await.unwrap();
         Redirect::to("/")
     }
 }
