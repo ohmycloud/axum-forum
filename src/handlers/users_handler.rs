@@ -8,37 +8,11 @@ use axum_messages::Messages;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use crate::{AppState, utils::validation_errors};
-
-#[derive(Debug, Template)]
-#[template(path = "../templates/pages/register.html")]
-struct RegisterTemplate<'a> {
-    title: &'a str,
-    messages: Vec<String>,
-}
-
-#[derive(Debug, Template)]
-#[template(path = "../templates/pages/login.html")]
-struct LoginTemplate<'a> {
-    title: &'a str,
-    messages: Vec<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Validate)]
-pub struct RegisterForm {
-    #[validate(length(
-        min = 4,
-        max = 50,
-        message = "Name must be between 4 and 50 characters"
-    ))]
-    pub name: String,
-    #[validate(email(message = "Invalid email"))]
-    pub email: String,
-    #[validate(length(min = 8, message = "Password must be more than 8 characters"))]
-    pub password: String,
-    #[validate(must_match(other = "password", message = "Passwords do not match"))]
-    pub confirm_password: String,
-}
+use crate::{
+    AppState,
+    models::{LoginTemplate, RegisterForm, RegisterTemplate},
+    utils::validation_errors,
+};
 
 pub async fn register_handler(messages: Messages) -> impl IntoResponse {
     let messages = messages
