@@ -10,7 +10,7 @@ use validator::Validate;
 
 use crate::{
     AppState,
-    models::{LoginTemplate, RegisterForm, RegisterTemplate},
+    models::{LoginForm, LoginTemplate, RegisterForm, RegisterTemplate},
     utils::validation_errors,
 };
 
@@ -58,9 +58,24 @@ pub async fn register_form(messages: Messages, Form(form): Form<RegisterForm>) -
     }
 }
 
+pub async fn login_form(messages: Messages, Form(form): Form<LoginForm>) -> Redirect {
+    // Validate the upcoming data
+    if let Err(errors) = form.validate() {
+        let error_messages = validation_errors(errors);
+        let mut messages = messages;
+
+        for error in error_messages {
+            messages = messages.error(error)
+        }
+
+        Redirect::to("/login")
+    } else {
+        Redirect::to("/")
+    }
+}
+
 pub fn users_router() -> Router<AppState> {
     Router::new()
-        .route("/login", get(login_handler))
-        .route("/register", get(register_handler))
-        .route("/register", post(register_form))
+        .route("/login", get(login_handler).post(login_form))
+        .route("/register", get(register_handler).post(register_form))
 }
