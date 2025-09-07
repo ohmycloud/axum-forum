@@ -3,10 +3,12 @@
 mod handlers;
 mod router;
 
+use axum_messages::MessagesManagerLayer;
 use dotenvy::dotenv;
 use sqlx::PgPool;
 use std::{env, net::SocketAddr};
 use tower_http::services::ServeDir;
+use tower_sessions::{Expiry, SessionManagerLayer, cookie::time::Duration};
 use tower_sessions_sqlx_store::PostgresStore;
 
 #[derive(Debug, Clone)]
@@ -26,10 +28,16 @@ async fn main() {
     let session_store = PostgresStore::new(pool.clone());
     session_store.migrate().await.unwrap();
 
+    let session_layer = SessionManagerLayer::new(session_store)
+        .with_secure(false)
+        .with_expiry(Expiry::OnInactivity(Duration::seconds(60 * 60 * 24)));
+
     let addr = SocketAddr::from(([127, 0, 0, 1], 3333));
     println!("Listening on: http://{}", addr);
 
     let app = router::routes()
+        .layer(MessagesManagerLayer)
+        .layer(session_layer)
         .nest_service("/assets", serve_dir)
         .with_state(app_state);
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
