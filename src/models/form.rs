@@ -16,3 +16,11 @@ pub struct RegisterForm {
     #[validate(must_match(other = "password", message = "Passwords do not match"))]
     pub confirm_password: String,
 }
+
+#[derive(Debug, Serialize, Deserialize, Validate)]
+pub struct LoginForm {
+    #[validate(email(message = "Invalid email"))]
+    pub email: String,
+    #[validate(length(min = 8, message = "Password must be more than 8 characters"))]
+    pub password: String,
+}
