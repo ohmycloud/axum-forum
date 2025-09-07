@@ -1,6 +1,8 @@
 #![allow(unused)]
+
+mod handlers;
 mod router;
-use axum::{Router, routing::get};
+
 use dotenvy::dotenv;
 use sqlx::PgPool;
 use std::env;
