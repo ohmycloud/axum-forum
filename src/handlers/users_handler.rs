@@ -8,7 +8,7 @@ use axum_messages::Messages;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use crate::AppState;
+use crate::{AppState, utils::validation_errors};
 
 #[derive(Debug, Template)]
 #[template(path = "../templates/pages/register.html")]
@@ -33,10 +33,15 @@ pub struct RegisterForm {
     pub confirm_password: String,
 }
 
-pub async fn register_handler() -> impl IntoResponse {
+pub async fn register_handler(messages: Messages) -> impl IntoResponse {
+    let messages = messages
+        .into_iter()
+        .map(|message| format!("{}: {}", message.level, message.message))
+        .collect::<Vec<_>>();
+
     let tmpl = RegisterTemplate {
         title: "Register Page",
-        messages: vec![],
+        messages,
     };
 
     Html(tmpl.render().unwrap())
@@ -46,8 +51,16 @@ pub async fn login_handler() -> impl IntoResponse {
     "Login page"
 }
 
-pub async fn register_form(Form(form): Form<RegisterForm>) -> Redirect {
+pub async fn register_form(messages: Messages, Form(form): Form<RegisterForm>) -> Redirect {
+    // Validate the upcoming data
     if let Err(errors) = form.validate() {
+        let error_messages = validation_errors(errors);
+        let mut messages = messages;
+
+        for error in error_messages {
+            messages = messages.error(error)
+        }
+
         Redirect::to("/register")
     } else {
         Redirect::to("/")

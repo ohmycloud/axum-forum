@@ -2,6 +2,7 @@
 
 mod handlers;
 mod router;
+mod utils;
 
 use axum_messages::MessagesManagerLayer;
 use dotenvy::dotenv;
