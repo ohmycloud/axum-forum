@@ -5,7 +5,7 @@ mod router;
 
 use dotenvy::dotenv;
 use sqlx::PgPool;
-use std::env;
+use std::{env, net::SocketAddr};
 
 #[derive(Debug, Clone)]
 struct AppState {
@@ -21,8 +21,9 @@ async fn main() {
         .expect("Failed to connect to database pool");
     let app_state = AppState { pool };
 
-    let addr = "127.0.0.1:8080";
+    let addr = SocketAddr::from(([127, 0, 0, 1], 3333));
     println!("Listening on: http://{}", addr);
+
     let app = router::routes().with_state(app_state);
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();
