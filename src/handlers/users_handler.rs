@@ -17,6 +17,13 @@ struct RegisterTemplate<'a> {
     messages: Vec<String>,
 }
 
+#[derive(Debug, Template)]
+#[template(path = "../templates/pages/login.html")]
+struct LoginTemplate<'a> {
+    title: &'a str,
+    messages: Vec<String>,
+}
+
 #[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct RegisterForm {
     #[validate(length(
@@ -47,8 +54,18 @@ pub async fn register_handler(messages: Messages) -> impl IntoResponse {
     Html(tmpl.render().unwrap())
 }
 
-pub async fn login_handler() -> impl IntoResponse {
-    "Login page"
+pub async fn login_handler(messages: Messages) -> impl IntoResponse {
+    let messages = messages
+        .into_iter()
+        .map(|message| format!("{}: {}", message.level, message.message))
+        .collect::<Vec<_>>();
+
+    let tmpl = LoginTemplate {
+        title: "Login",
+        messages,
+    };
+
+    Html(tmpl.render().unwrap())
 }
 
 pub async fn register_form(messages: Messages, Form(form): Form<RegisterForm>) -> Redirect {
