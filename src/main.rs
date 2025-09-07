@@ -7,6 +7,7 @@ use dotenvy::dotenv;
 use sqlx::PgPool;
 use std::{env, net::SocketAddr};
 use tower_http::services::ServeDir;
+use tower_sessions_sqlx_store::PostgresStore;
 
 #[derive(Debug, Clone)]
 struct AppState {
@@ -20,8 +21,10 @@ async fn main() {
     let pool = sqlx::PgPool::connect(&database_url)
         .await
         .expect("Failed to connect to database pool");
-    let app_state = AppState { pool };
+    let app_state = AppState { pool: pool.clone() };
     let serve_dir = ServeDir::new("assets").not_found_service(ServeDir::new("assets/index.html"));
+    let session_store = PostgresStore::new(pool.clone());
+    session_store.migrate().await.unwrap();
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3333));
     println!("Listening on: http://{}", addr);
