@@ -6,6 +6,7 @@ mod router;
 use dotenvy::dotenv;
 use sqlx::PgPool;
 use std::{env, net::SocketAddr};
+use tower_http::services::ServeDir;
 
 #[derive(Debug, Clone)]
 struct AppState {
@@ -20,11 +21,14 @@ async fn main() {
         .await
         .expect("Failed to connect to database pool");
     let app_state = AppState { pool };
+    let serve_dir = ServeDir::new("assets").not_found_service(ServeDir::new("assets/index.html"));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3333));
     println!("Listening on: http://{}", addr);
 
-    let app = router::routes().with_state(app_state);
+    let app = router::routes()
+        .nest_service("/assets", serve_dir)
+        .with_state(app_state);
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
