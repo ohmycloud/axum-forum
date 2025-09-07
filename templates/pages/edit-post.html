@@ -1,0 +1,62 @@
+{% extends "../layouts/guest_layout.html" %} {% block content %}
+<div class="pt-20">
+    <div
+        class="p-4 bg-white shadow-lg border border-slate-200 rounded w-96 mx-auto"
+    >
+        <div
+            class="mt-4 font-bold bg-cyan-600 w-40 mx-auto shadow text-center text-2xl mb-2 rounded-3xl text-white p-2"
+        >
+            Axum Forum
+        </div>
+
+        <h1 class="mx-1 font-bold text-xl mt-6">Please Register</h1>
+        {% include "../partials/messages.html" %}
+
+        <form
+            method="POST"
+            action="/register"
+            class="flex flex-col justify-center px-1"
+        >
+            <div class="py-4 flex flex-col">
+                <label for="name">Name</label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value="{{form_data.name}}"
+                />
+            </div>
+            <div class="py-4 flex flex-col">
+                <label for="email">Email</label>
+                <input
+                    type="text"
+                    id="email"
+                    name="email"
+                    value="{{form_data.email}}"
+                />
+            </div>
+            <div class="py-4 flex flex-col">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" \ />
+            </div>
+            <div class="py-4 flex flex-col">
+                <label for="confirm_password">Confirm Password</label>
+                <input
+                    type="password"
+                    id="confirm_password"
+                    name="confirm_password"
+                />
+            </div>
+            <div class="py-4">
+                <button
+                    type="submit"
+                    class="w-full cursor-pointer border bg-gray-800 rounded py-2 text-white"
+                >
+                    Log in
+                </button>
+            </div>
+            <a href="/login">Have an account? Login</a>
+        </form>
+    </div>
+</div>
+{% endblock content %}
