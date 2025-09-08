@@ -7,6 +7,7 @@ use axum::{
 };
 use axum_messages::Messages;
 use serde::{Deserialize, Serialize};
+use tower_sessions::Session;
 use validator::Validate;
 
 use crate::{
@@ -45,6 +46,7 @@ pub async fn login_handler(messages: Messages) -> impl IntoResponse {
 
 pub async fn register_form(
     messages: Messages,
+    session: Session,
     State(state): State<AppState>,
     Form(form): Form<RegisterForm>,
 ) -> Redirect {
@@ -75,13 +77,15 @@ pub async fn register_form(
         }
 
         // Register new user and save the user into the database.
-        User::register(&state.pool, form).await.unwrap();
+        let user = User::register(&state.pool, form).await.unwrap();
+        session.insert("auth_user", user).await.unwrap();
         Redirect::to("/")
     }
 }
 
 pub async fn login_form(
     messages: Messages,
+    session: Session,
     State(state): State<AppState>,
     Form(form): Form<LoginForm>,
 ) -> Redirect {
@@ -97,7 +101,10 @@ pub async fn login_form(
         Redirect::to("/login")
     } else {
         match User::login(&state.pool, form).await {
-            Ok(_user) => Redirect::to("/"),
+            Ok(user) => {
+                session.insert("auth_user", user).await.unwrap();
+                Redirect::to("/")
+            }
             Err(_) => {
                 messages.error("Invalid email or password.");
                 Redirect::to("/login")
