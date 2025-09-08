@@ -96,8 +96,13 @@ pub async fn login_form(
 
         Redirect::to("/login")
     } else {
-        User::login(&state.pool, form).await.unwrap();
-        Redirect::to("/")
+        match User::login(&state.pool, form).await {
+            Ok(_user) => Redirect::to("/"),
+            Err(_) => {
+                messages.error("Invalid email or password.");
+                Redirect::to("/login")
+            }
+        }
     }
 }
 
