@@ -52,7 +52,7 @@ impl User {
     pub async fn email_exists(pool: &PgPool, email: &str) -> anyhow::Result<bool> {
         let count: i64 = sqlx::query_scalar(
             r#"
-            SELECT COUNT(*) FROM users WHERE email = $1
+            SELECT COUNT(1) FROM users WHERE email = $1
             "#,
         )
         .bind(email)

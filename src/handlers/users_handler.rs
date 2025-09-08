@@ -59,16 +59,22 @@ pub async fn register_form(
 
         Redirect::to("/register")
     } else {
-        // Register new user and save the user into the database.
+        // Check if the email already exists.
         let exists = User::email_exists(&state.pool, &form.email).await;
-        if let Err(_) = exists {
-            messages.error("Something went wrong.");
-            return Redirect::to("/register");
-        } else if exists.is_ok() {
-            messages.error("User already exists.");
-            return Redirect::to("/register");
+        match User::email_exists(&state.pool, &form.email).await {
+            Ok(exists) => {
+                if exists {
+                    messages.error("User already exists.");
+                    return Redirect::to("/register");
+                }
+            }
+            Err(_) => {
+                messages.error("Something went wrong.");
+                return Redirect::to("/register");
+            }
         }
 
+        // Register new user and save the user into the database.
         User::register(&state.pool, form).await.unwrap();
         Redirect::to("/")
     }
