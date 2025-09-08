@@ -24,3 +24,11 @@ pub struct LoginForm {
     #[validate(length(min = 8, message = "Password must be more than 8 characters"))]
     pub password: String,
 }
+
+#[derive(Debug, Serialize, Deserialize, Validate)]
+pub struct PostForm {
+    #[validate(length(min = 8, message = "Title must be at least 8 characters long"))]
+    pub title: String,
+    #[validate(length(min = 50, message = "Content must be at least 50 characters long"))]
+    pub content: String,
+}

@@ -41,9 +41,7 @@
                     @click="open = !open"
                 >
                     {% include "../partials/icons/user-icon.html" %}
-                    <span class=""
-                        >{{auth_user.name.to_case(Case::Title)}}</span
-                    >
+                    <span class="">{{auth_user.name}}</span>
                 </div>
 
                 <div
@@ -53,7 +51,7 @@
                     x-transition
                 >
                     <div class="font-bold text-center my-2">
-                        {{auth_user.name.to_case(Case::Title)}}
+                        {{auth_user.name}}
                     </div>
                     <div class="flex p-1 text-red-500 hover:text-red-700">
                         {% include "../partials/icons/exit-icon.html" %}
