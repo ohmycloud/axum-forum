@@ -32,3 +32,12 @@ pub struct PostForm {
     #[validate(length(min = 50, message = "Content must be at least 50 characters long"))]
     pub content: String,
 }
+
+#[derive(Debug, Serialize, Deserialize, Validate)]
+pub struct PostUserForm {
+    #[validate(length(min = 8, message = "Title must be at least 8 characters long"))]
+    pub title: String,
+    #[validate(length(min = 50, message = "Content must be at least 50 characters long"))]
+    pub content: String,
+    pub user_id: i32,
+}

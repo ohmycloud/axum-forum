@@ -32,3 +32,20 @@ pub struct CreatePostTemplate<'a> {
     pub messages: Vec<String>,
     pub auth_user: User,
 }
+
+#[derive(Debug, Template)]
+#[template(path = "../templates/pages/show-post.html")]
+pub struct ShowPostTemplate<'a> {
+    pub title: &'a str,
+    pub auth_user: User,
+    pub post: Post,
+}
+
+#[derive(Debug, Template)]
+#[template(path = "../templates/pages/edit-post.html")]
+pub struct EditPostTemplate<'a> {
+    pub title: &'a str,
+    pub messages: Vec<String>,
+    pub auth_user: User,
+    pub post: Post,
+}
