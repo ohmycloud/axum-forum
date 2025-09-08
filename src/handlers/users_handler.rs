@@ -16,6 +16,12 @@ use crate::{
     utils::validation_errors,
 };
 
+pub fn users_router() -> Router<AppState> {
+    Router::new()
+        .route("/login", get(login_handler).post(login_form))
+        .route("/register", get(register_handler).post(register_form))
+}
+
 pub async fn register_handler(messages: Messages) -> impl IntoResponse {
     let messages = messages
         .into_iter()
@@ -111,10 +117,4 @@ pub async fn login_form(
             }
         }
     }
-}
-
-pub fn users_router() -> Router<AppState> {
-    Router::new()
-        .route("/login", get(login_handler).post(login_form))
-        .route("/register", get(register_handler).post(register_form))
 }

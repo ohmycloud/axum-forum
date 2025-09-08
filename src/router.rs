@@ -6,8 +6,5 @@ use crate::{
 };
 
 pub fn routes() -> Router<AppState> {
-    Router::new()
-        .merge(users_router())
-        .merge(posts_router())
-        .route("/", get(|| async { "Hello!" }))
+    Router::new().merge(users_router()).merge(posts_router())
 }

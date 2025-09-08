@@ -77,4 +77,21 @@ impl Post {
 
         Ok(())
     }
+
+    pub async fn update(pool: &PgPool, id: i32, post: PostForm) -> anyhow::Result<()> {
+        sqlx::query(
+            r#"
+            UPDATE posts
+            SET title = $1, content = $2
+            WHERE id = $3
+            "#,
+        )
+        .bind(post.title)
+        .bind(post.content)
+        .bind(id)
+        .execute(pool)
+        .await?;
+
+        Ok(())
+    }
 }
